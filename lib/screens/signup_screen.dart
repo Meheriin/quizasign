@@ -18,6 +18,18 @@ class _SignUpScreenState extends State<SignUpScreen> {
   bool _isLoading = false;
   bool _obscureText = true;
 
+  void _showMessage(String message, {bool isError = true}) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: isError ? Colors.redAccent : Colors.green,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+      ),
+    );
+  }
+
   void _signUp() async {
     if (_formKey.currentState!.validate()) {
       setState(() => _isLoading = true);
@@ -29,15 +41,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
         );
         if (mounted) Navigator.pop(context);
       } catch (e) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Error: ${e.toString()}'),
-              backgroundColor: Colors.redAccent,
-              behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-            ),
-          );
+        String errorMsg = e.toString();
+        if (errorMsg.contains('email-already-in-use')) {
+          _showMessage("This email was used previously. Please use another or login.");
+        } else {
+          _showMessage("Sign up failed. Please check your connection.");
         }
       } finally {
         if (mounted) setState(() => _isLoading = false);
@@ -66,7 +74,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
               child: Container(width: 200, height: 200, decoration: BoxDecoration(color: Colors.white.withOpacity(0.05), shape: BoxShape.circle)),
             ),
           ),
-          
           SafeArea(
             child: Column(
               children: [
@@ -106,7 +113,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             const SizedBox(height: 25),
                             _buildInputField(
                               controller: _emailController,
-                              label: 'Connection Point (Email)',
+                              label: 'Email',
                               hint: 'Enter your email',
                               icon: Icons.alternate_email_rounded,
                               validator: (v) => (v == null || !v.contains('@')) ? 'Enter a valid email' : null,
@@ -114,7 +121,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             const SizedBox(height: 25),
                             _buildInputField(
                               controller: _passwordController,
-                              label: 'Secret Key (Password)',
+                              label: 'Password',
                               hint: 'Create a password',
                               icon: Icons.lock_outline_rounded,
                               obscureText: _obscureText,
@@ -177,7 +184,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
             fillColor: const Color(0xFFF9FAFF),
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(25), borderSide: BorderSide.none),
             enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(25), borderSide: BorderSide.none),
-            focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(25), borderSide: const BorderSide(color: Color(0xFF7455F7), width: 2)),
+            focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(25), borderSide: const BorderSide(color: Color(0xFF4776E6), width: 2)),
             contentPadding: const EdgeInsets.all(20),
           ),
         ),

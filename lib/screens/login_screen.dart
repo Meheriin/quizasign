@@ -18,6 +18,18 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _isLoading = false;
   bool _obscureText = true;
 
+  void _showMessage(String message, {bool isError = true}) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: isError ? Colors.redAccent : Colors.green,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+      ),
+    );
+  }
+
   void _login() async {
     if (_formKey.currentState!.validate()) {
       setState(() => _isLoading = true);
@@ -27,19 +39,30 @@ class _LoginScreenState extends State<LoginScreen> {
           _passwordController.text.trim(),
         );
       } catch (e) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Error: ${e.toString()}'),
-              backgroundColor: Colors.redAccent,
-              behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-            ),
-          );
+        String errorMsg = e.toString();
+        if (errorMsg.contains('user-not-found') || errorMsg.contains('invalid-credential')) {
+          _showMessage("Account not found. Please go below and create the account first.");
+        } else {
+          _showMessage("Login failed. Check your password or try again.");
         }
       } finally {
         if (mounted) setState(() => _isLoading = false);
       }
+    }
+  }
+
+  void _forgotPassword() async {
+    final email = _emailController.text.trim();
+    if (email.isEmpty || !email.contains('@')) {
+      _showMessage("Please enter your email above first to reset password.");
+      return;
+    }
+    
+    try {
+      await _authService.sendPasswordResetEmail(email);
+      _showMessage("Password reset link sent to $email", isError: false);
+    } catch (e) {
+      _showMessage("Could not send reset email. Check if the email is registered.");
     }
   }
 
@@ -51,7 +74,6 @@ class _LoginScreenState extends State<LoginScreen> {
       backgroundColor: primaryColor,
       body: Stack(
         children: [
-          // Background Blobs
           Positioned(
             top: -50,
             left: -50,
@@ -59,7 +81,6 @@ class _LoginScreenState extends State<LoginScreen> {
               child: Container(width: 250, height: 250, decoration: BoxDecoration(color: Colors.white.withOpacity(0.1), shape: BoxShape.circle)),
             ),
           ),
-          
           SafeArea(
             child: Column(
               children: [
@@ -98,7 +119,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             const SizedBox(height: 40),
                             _buildInputField(
                               controller: _emailController,
-                              label: 'Knowledge Hub ID (Email)',
+                              label: 'Email',
                               hint: 'Enter your email',
                               icon: Icons.alternate_email_rounded,
                               validator: (v) => (v == null || !v.contains('@')) ? 'Enter a valid email' : null,
@@ -106,7 +127,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             const SizedBox(height: 25),
                             _buildInputField(
                               controller: _passwordController,
-                              label: 'Mind Vault Code (Password)',
+                              label: 'Password',
                               hint: 'Enter your password',
                               icon: Icons.lock_outline_rounded,
                               obscureText: _obscureText,
@@ -120,8 +141,8 @@ class _LoginScreenState extends State<LoginScreen> {
                             Align(
                               alignment: Alignment.centerRight,
                               child: TextButton(
-                                onPressed: () {},
-                                child: const Text('Forgot Key?', style: TextStyle(color: primaryColor, fontWeight: FontWeight.w800)),
+                                onPressed: _forgotPassword,
+                                child: const Text('Forgot Password?', style: TextStyle(color: primaryColor, fontWeight: FontWeight.w800)),
                               ),
                             ),
                             const SizedBox(height: 35),
@@ -130,7 +151,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               height: 65,
                               child: ElevatedButton(
                                 onPressed: _isLoading ? null : _login,
-                                child: _isLoading ? const CircularProgressIndicator(color: Colors.white) : const Text('Unlock MindLoom'),
+                                child: _isLoading ? const CircularProgressIndicator(color: Colors.white) : const Text('Login'),
                               ),
                             ),
                             const SizedBox(height: 30),
@@ -180,7 +201,7 @@ class _LoginScreenState extends State<LoginScreen> {
             fillColor: const Color(0xFFF9FAFF),
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(25), borderSide: BorderSide.none),
             enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(25), borderSide: BorderSide.none),
-            focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(25), borderSide: const BorderSide(color: Color(0xFF7455F7), width: 2)),
+            focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(25), borderSide: const BorderSide(color: Color(0xFF4776E6), width: 2)),
             contentPadding: const EdgeInsets.all(20),
           ),
         ),
