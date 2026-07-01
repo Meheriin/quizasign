@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "845598906521",
+    "project_id": "quizasign",
+    "storage_bucket": "quizasign.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:845598906521:android:5fc39dae200c0bd1b98008",
+        "android_client_info": {
+          "package_name": "quiz.asign"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "845598906521-mggirhtfg6tp5d52g4e1s6rjel0b35v5.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCUVDAXBzVM9521uDK_V07n1bx6qeqWsrg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "845598906521-mggirhtfg6tp5d52g4e1s6rjel0b35v5.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
